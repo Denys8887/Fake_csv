@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="container my-5">
+    <div class="form-inline mb-3">
+        <h5 class="px-4">Datasets</h5>
+        <form class="form-inline ml-auto " method="post" action="{% url 'create_datasets' %}">
+            {% csrf_token %}
+            <label for="inputRows" class="visually-hidden ml-auto">Rows:</label>
+            <input type="number" class="form-control ml-auto mr-3" name="input-rows" style="width: 40%" id="inputRows">
+            <button type="submit" class="btn btn-success mr-4">Generate data</button>
+        </form>
+    </div>
+    {% if datasets %}
+    <table class="table table-bordered mx-auto" style="width: 95%">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Created</th>
+            <th scope="col">Status</th>
+            <th scope="col">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for dataset in datasets %}
+        <tr>
+            <td class="dataset-btn" id="{{ dataset.id }}">{{ forloop.counter }}</td>
+            <td>{{ dataset.created|date:"Y-m-d" }}</td>
+            <td><p id="status-btn{{ dataset.id }}" class="btn btn-{% if dataset.csv_file %}success{% else %}secondary{% endif %}">{{ dataset.status }}</p></td>
+            <td id="download-td{{ dataset.id }}">
+                {% if dataset.csv_file %}<a href="{{ dataset.csv_file}}" id="download-btn{{ dataset.id }}"
+                                            class="p mr-4">Download</a>{% endif %}
+                <a href="{% url 'delete_dataset' dataset.id %}" class="p" style="color: #D9534F">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-center py-5">You have no datasets yet</p>
+    {% endif %}
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+
+    (function poll() {
+        let continuePolling = true;
+        setTimeout(function () {
+            const all_dataset_id = $('.dataset-btn').map(function() {
+                if ($.trim($(`#status-btn${this.id}`).text()) === 'Processing') {
+                    return this.id;
+                }
+            }).get()
+            console.log(all_dataset_id)
+            if (all_dataset_id.length === 0) {
+                continuePolling = false;
+            }
+            $.ajax({
+                url: '/check_status/',
+                type: "GET",
+                data: {
+                    'all_dataset_id': all_dataset_id
+                },
+                success: function (data) {
+                    var index;
+                    for (index = 0; index < data.length; ++index) {
+                        const dataset = data[index]
+                        if (dataset.dataset_status === 'Ready') {
+                            const id_dataset = parseInt(dataset.dataset_id)
+                            const csv_link = dataset.csv_file
+                            $(`#status-btn${id_dataset}`).text('Ready').toggleClass('btn btn-secondary btn btn-success')
+                            $(`#download-td${id_dataset}`).prepend(`<a href="${csv_link}" id="download-btn${csv_link}" class="p mr-4">Download</a>`)
+                        }
+                    }
+                },
+                dataType: "json",
+                complete: function() { if (continuePolling) { poll(); }}
+            })
+        }, 1500);
+    })();
+
+</script>
+{% endblock scripts %}

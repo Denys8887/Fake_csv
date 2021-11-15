@@ -1,0 +1,41 @@
+<body>
+{% if request.user.is_authenticated %}
+    <header class="header">
+        <!-- Main Navbar-->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand mx-4 font-weight-bold" href="{% url 'schemas' %}">FakeCSV</a>
+        <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+            <ul class="navbar-nav col-10">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'schemas' %}">Schemas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'datasets' %}">Datasets</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav col-2 justify-content-end">
+                <li class="nav-item active">
+                    <div class="btn-group">
+                        <a class="nav-link" style="white-space: nowrap">Hello, <b>{{ user.username|title }}</b></a>
+<!--                        <a href="{% url 'logoutuser' %}" class="nav-link">Logout</a>-->
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a href="#" onclick="$('#signOutBtn').click()" class="nav-link">Logout</a>
+                    <form style='display: none;' method="POST" action="{% url 'logoutuser' %}">
+                        {% csrf_token %}
+                        <button id="signOutBtn" type="submit">Logout</button>
+                    </form>
+                </li>
+            </ul>
+
+            {% endif %}
+        </div>
+    </nav>
+</header>
+
+{% block container %} {% endblock %}
+
+
+</body>

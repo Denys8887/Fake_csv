@@ -1,0 +1,7 @@
+.idea
+.data
+*.pyc
+.env
+
+# Project exclude paths
+/venv/

@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+
+  web:
+    build: .
+    container_name: web
+    restart: always
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/usr/src/fake_csv_app
+    env_file:
+      - ./.env
+    ports:
+      - "8000:8000"
+    environment:
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+
+  celery-worker:
+    build: .
+    command: celery -A fake_csv worker -l INFO
+    volumes:
+      - .:/usr/src/fake_csv_app
+    depends_on:
+      - web
+      - redis
+
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  redis:

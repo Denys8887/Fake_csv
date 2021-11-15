@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="container my-5">
+<div class="form-inline mb-3">
+    <h5 class="px-4">Data schemas</h5>
+    <a href="{% url 'create_schema' %}" class="btn btn-success ml-auto mr-4" role="button">New schema</a>
+</div>
+    {% if schemas %}
+    <table class="table table-bordered mx-auto" style="width: 95%">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Title</th>
+            <th scope="col">Modified</th>
+            <th scope="col">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for schema in schemas %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td style="color: #0275D8">{{ schema.title }}</td>
+            <td>{{ schema.modified|date:"Y-m-d" }}</td>
+            <td>
+                <div class="form-inline">
+                    <a href="{% url 'edit_schema' schema.id %}" class="p mr-4">Edit schema</a>
+                    <a href="{% url 'delete_schema' schema.id %}" class="p" style="color: #D9534F">Delete</a>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-center py-5">You don't have any schemas</p>
+    {% endif %}
+</main>
+{% endblock %}

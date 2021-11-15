@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% load crispy_forms_tags %}
+
+<main class="container py-4 my-4">
+
+    <div class="">
+<h4 class="pb-4 text-center">Schema columns</h4>
+        {% if columns %}
+        <table class="table raw mx-auto" style="width: 70%">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Type</th>
+                <th scope="col">From</th>
+                <th scope="col">To</th>
+                <th scope="col">Order</th>
+                <th scope="col">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for column in columns %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ column.name }}</td>
+                <td>{{ column.type }}</td>
+                <td>{% if column.From %}{{ column.From }}{% endif %}</td>
+                <td>{% if column.To %}{{ column.To }}{% endif %}</td>
+                <td>{{ column.order }}</td>
+                <td>
+                    <div class="form-inline">
+                        <a href="{% url 'edit_column' column.id %}" class="p mr-4">Edit column</a>
+                        <a href="{% url 'delete_column' column.id %}" class="p" style="color: #d9534f">Delete</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+    </div>
+    <p class="text-center pb-3">Your schema has no columns yet</p>
+    {% endif %}
+    <h4 class="text-center pt-5 pb-3">Add column</h4>
+    <div class="row justify-content-center">
+        <form class="text-right form-contact" id="column_form" action="" method="POST">
+            {% csrf_token %}
+            {% crispy form "bootstrap4" %}
+        </form>
+        <a href="{% url 'schemas' %}" class="btn btn-success my-5">Save and back to schemas</a>
+    </div>
+</main>
+
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    $(document).change(function () {
+        var type = $('#id_type').val();
+        if (type === "Integer") {
+            $('#id_From').prop("disabled", false);
+            $('#id_To').prop("disabled", false);
+        } else {
+            $('#id_From').prop("disabled", true);
+            $('#id_To').prop("disabled", true);
+        }
+    });
+</script>
+{% endblock scripts %}
